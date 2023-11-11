@@ -37,9 +37,16 @@ async function run() {
             res.send(result);
         });
 
-// app.get("/foods", async(req, res) => {
-//     const topFoods = foodsCollection.find()
-// })
+        app.get("/foods-count", async (req, res) => {
+            const count = await foodsCollection.estimatedDocumentCount();
+            res.send({ count });
+        });
+
+        app.get("/top-foods", async (req, res) => {
+            const topFoods = foodsCollection.find().sort({ timesOrdered: -1 });
+            const result = (await topFoods.toArray()).slice(0, 6);
+            res.send(result);
+        });
 
         await client.db("admin").command({ ping: 1 });
         console.log(
