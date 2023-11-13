@@ -38,6 +38,13 @@ async function run() {
             res.send(result);
         });
 
+        // Creating Data
+        app.post("/foods", async (req, res) => {
+            const newFood = req.body;
+            const result = await foodsCollection.insertOne(newFood);
+            res.send(result);
+        });
+
         // Getting for all foods page with pagination and search
         app.get("/foods", async (req, res) => {
             const search = req.query.search;
@@ -70,6 +77,7 @@ async function run() {
             const updateFood = {
                 $set: {
                     quantity: updatedFood.quantity,
+                    timesOrdered: updatedFood.timesOrdered,
                 },
             };
             const result = await foodsCollection.updateOne(
