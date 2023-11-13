@@ -9,7 +9,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.6cq5lj6.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -30,8 +29,16 @@ async function run() {
         const bistroDB = client.db("bistroDB");
 
         const foodsCollection = bistroDB.collection("foods");
+        const cartCollection = bistroDB.collection("cart");
 
-        // Getting for all foods page
+        // Getting cart details
+        app.post("/carts", async (req, res) => {
+            const newCart = req.body;
+            const result = await cartCollection.insertOne(newCart);
+            res.send(result);
+        });
+
+        // Getting for all foods page with pagination and search
         app.get("/foods", async (req, res) => {
             const search = req.query.search;
             const page = parseInt(req.query.page);
@@ -52,6 +59,24 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await foodsCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put("/foods/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedFood = req.body;
+            const updateFood = {
+                $set: {
+                    quantity: updatedFood.quantity,
+                },
+            };
+            const result = await foodsCollection.updateOne(
+                filter,
+                updateFood,
+                options
+            );
             res.send(result);
         });
 
