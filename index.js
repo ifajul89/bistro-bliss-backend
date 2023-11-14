@@ -38,6 +38,26 @@ async function run() {
             res.send(result);
         });
 
+        app.get("/carts", async (req, res) => {
+            const cursor = cartCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.get("/carts/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { buyerId: id };
+            const result = await cartCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        app.delete("/carts/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        });
+
         // Creating Data
         app.post("/foods", async (req, res) => {
             const newFood = req.body;
@@ -50,7 +70,6 @@ async function run() {
             const search = req.query.search;
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
-            console.log(page, size, search);
             const query = {
                 foodName: { $regex: new RegExp(search, "i") },
             };
@@ -62,14 +81,22 @@ async function run() {
             res.send(result);
         });
 
+        // Getting Food Data By User
         app.get("/foods/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { "madeBy.id": id };
+            const result = await foodsCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        app.get("/food/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await foodsCollection.findOne(query);
             res.send(result);
         });
 
-        app.put("/foods/:id", async (req, res) => {
+        app.put("/food/:id", async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
             const options = { upsert: true };
