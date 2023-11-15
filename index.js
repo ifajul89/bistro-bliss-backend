@@ -10,7 +10,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 // Middleware
 app.use(
     cors({
-        origin: ["http://localhost:5173"],
+        origin: ["https://bistro-bliss.web.app"],
         credentials: true,
     })
 );
@@ -55,7 +55,6 @@ async function run() {
         // Auth Related
         app.post("/jwt", async (req, res) => {
             const user = req.body;
-            console.log(user);
             const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
                 expiresIn: "6h",
             });
