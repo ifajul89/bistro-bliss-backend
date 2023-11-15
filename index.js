@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const cookieParser = require("cookie-parser");
 const app = express();
 const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
@@ -14,6 +15,12 @@ app.use(
     })
 );
 app.use(express.json());
+app.use(cookieParser());
+const verifyToken = (req, res, next) => {
+    const token = req?.cookies?.token;
+    console.log("token in the middleware", token);
+    next();
+};
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.6cq5lj6.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -146,7 +153,7 @@ async function run() {
             res.send({ count });
         });
 
-        app.get("/top-foods", async (req, res) => {
+        app.get("/top-foods", verifyToken, async (req, res) => {
             const topFoods = foodsCollection.find().sort({ timesOrdered: -1 });
             const result = (await topFoods.toArray()).slice(0, 6);
             res.send(result);
