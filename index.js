@@ -18,8 +18,16 @@ app.use(express.json());
 app.use(cookieParser());
 const verifyToken = (req, res, next) => {
     const token = req?.cookies?.token;
-    console.log("token in the middleware", token);
-    next();
+    if (!token) {
+        return res.status(401).send({ message: "Unauthorized Access" });
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: "Unauthorize Access" });
+        }
+        req.user = decoded;
+        next();
+    });
 };
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.6cq5lj6.mongodb.net/?retryWrites=true&w=majority`;
@@ -72,13 +80,10 @@ async function run() {
         });
 
         app.get("/carts", async (req, res) => {
-            const cursor = cartCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        });
-
-        app.get("/carts/:id", async (req, res) => {
-            const id = req.params.id;
+            const id = req.query.id;
+            // if (req.user.uid !== id) {
+            //     return res.status(403).send({ message: "Forbidden Access" });
+            // }
             const query = { buyerId: id };
             const result = await cartCollection.find(query).toArray();
             res.send(result);
@@ -153,7 +158,7 @@ async function run() {
             res.send({ count });
         });
 
-        app.get("/top-foods", verifyToken, async (req, res) => {
+        app.get("/top-foods", async (req, res) => {
             const topFoods = foodsCollection.find().sort({ timesOrdered: -1 });
             const result = (await topFoods.toArray()).slice(0, 6);
             res.send(result);
