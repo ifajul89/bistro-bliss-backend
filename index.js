@@ -2,11 +2,17 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // Middleware
-app.use(cors());
+app.use(
+    cors({
+        origin: ["http://localhost:5173"],
+        credentials: true,
+    })
+);
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.6cq5lj6.mongodb.net/?retryWrites=true&w=majority`;
@@ -30,6 +36,26 @@ async function run() {
 
         const foodsCollection = bistroDB.collection("foods");
         const cartCollection = bistroDB.collection("cart");
+
+        // Auth Related
+        app.post("/jwt", async (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+                expiresIn: "6h",
+            });
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+            }).send({ setSuccess: true });
+        });
+
+        app.post("/logout", (req, res) => {
+            const user = req.body;
+            res.clearCookie("token", { maxAge: 0 }).send({ setSuccess: true });
+        });
 
         // Getting cart details
         app.post("/carts", async (req, res) => {
