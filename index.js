@@ -79,18 +79,18 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/carts", async (req, res) => {
+        app.get("/carts", verifyToken, async (req, res) => {
             const id = req.query.id;
-            // if (req.user.uid !== id) {
-            //     return res.status(403).send({ message: "Forbidden Access" });
-            // }
+            if (req.user.uid !== id) {
+                return res.status(403).send({ message: "Forbidden Access" });
+            }
             const query = { buyerId: id };
             const result = await cartCollection.find(query).toArray();
             res.send(result);
         });
 
-        app.delete("/carts/:id", async (req, res) => {
-            const id = req.params.id;
+        app.delete("/carts", verifyToken, async (req, res) => {
+            const id = req.query.id;
             const query = { _id: new ObjectId(id) };
             const result = await cartCollection.deleteOne(query);
             res.send(result);
