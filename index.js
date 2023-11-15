@@ -89,7 +89,7 @@ async function run() {
             res.send(result);
         });
 
-        app.delete("/carts", verifyToken, async (req, res) => {
+        app.delete("/carts", async (req, res) => {
             const id = req.query.id;
             const query = { _id: new ObjectId(id) };
             const result = await cartCollection.deleteOne(query);
@@ -120,8 +120,11 @@ async function run() {
         });
 
         // Getting Food Data By User
-        app.get("/foods/:id", async (req, res) => {
-            const id = req.params.id;
+        app.get("/my-added-foods", verifyToken, async (req, res) => {
+            const id = req.query.id;
+            if (req.user.uid !== id) {
+                return res.status(403).send({ message: "Forbidden Access" });
+            }
             const query = { "madeBy.id": id };
             const result = await foodsCollection.find(query).toArray();
             res.send(result);
