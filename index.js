@@ -10,7 +10,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 // Middleware
 app.use(
     cors({
-        origin: ["https://bistro-bliss.web.app"],
+        origin: ["https://bistro-bliss-restaurant.netlify.app"],
         credentials: true,
     })
 );
