@@ -1,5 +1,5 @@
 {
-  "name": "b8a11-server-side-bluebird089",
+  "name": "bistro-bliss-client",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,8 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "npx prettier . --write",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "prod": "vercel --prod"
   },
   "keywords": [],
   "author": "",
